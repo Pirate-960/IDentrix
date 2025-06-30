@@ -1,0 +1,28 @@
+# .gitignore
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore model checkpoints
+checkpoints/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore virtual environments
+.env/
+venv/
+
+# Ignore entire data folder
+data/
+
+# Ignore log files
+*.log
+
+# Ignore Streamlit cache
+.streamlit/
+
+# Ignore notebook checkpoints
+.ipynb_checkpoints/
