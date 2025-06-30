@@ -1,19 +1,46 @@
 # requirements.txt
-# Dependencies for Person Re-Identification project
+#
+# This file lists the Python packages required to run the IDentrix project.
+# To install all dependencies, run the following command in your terminal:
+# pip install -r requirements.txt
+# -----------------------------------------------------------------------------
 
-# Core ML libraries
+# --- Core Machine Learning ---
+# PyTorch is the main deep learning framework.
 torch>=1.12
 torchvision>=0.13
+
+# Timm (PyTorch Image Models) provides easy access to pre-trained models like
+# ResNet50 and Vision Transformer (ViT).
 timm>=0.9.2
 
-# Data and evaluation
-scikit-learn>=1.0
+
+# --- Data Handling and Evaluation ---
+# NumPy is used for numerical operations, especially with embeddings.
 numpy>=1.22
+
+# Scikit-learn is used for evaluation metrics (cosine_similarity).
+scikit-learn>=1.0
+
+# Pillow (PIL Fork) is used for opening and processing images.
 Pillow>=9.0
+
+# Matplotlib is a dependency for some plotting/vision libraries, good to have.
 matplotlib>=3.5
 
-# Web UI
+
+# --- Web Application UI ---
+# Streamlit is used to create the interactive web demo.
 streamlit>=1.25
 
-# Optional (for reproducibility/debugging)
+
+# --- Utilities and Helpers ---
+# Tqdm creates smart progress bars for loops (e.g., during training/evaluation).
 tqdm
+
+# Kaggle API is required for the `prepare_dataset.py` script to download data.
+kaggle
+
+# --- NEW: Experiment Tracking ---
+# Weights & Biases for logging metrics, visualizing results, and saving models.
+wandb
