@@ -7,6 +7,9 @@ __pycache__/
 # Ignore model checkpoints
 checkpoints/
 
+# Ignore WandB logs and files
+wandb/
+
 # Ignore system files
 .DS_Store
 Thumbs.db
