@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attention-based Feature Fusion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #333;
+            line-height: 1.3;
+            padding: 10px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #8e44ad;
+            padding-bottom: 8px;
+        }
+        
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .fusion-architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .inputs-section {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .input-feature {
+            background: white;
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            min-width: 140px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .input-feature:hover {
+            transform: translateY(-3px);
+        }
+        
+        .cnn-input {
+            border-color: #e74c3c;
+            background: linear-gradient(145deg, #fff5f5, #ffeaea);
+        }
+        
+        .vit-input {
+            border-color: #27ae60;
+            background: linear-gradient(145deg, #f0fff4, #e8f5e8);
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .feature-dims {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 4px;
+        }
+        
+        .feature-type {
+            font-size: 11px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+        
+        .fusion-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .fusion-step {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            text-align: center;
+            min-width: 100px;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .fusion-step:hover {
+            transform: translateY(-2px);
+        }
+        
+        .step-title {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        
+        .step-details {
+            font-size: 10px;
+            opacity: 0.9;
+        }
+        
+        .concat-step {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+        }
+        
+        .attention-step {
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            min-width: 120px;
+        }
+        
+        .weights-step {
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
+        }
+        
+        .final-step {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+        }
+        
+        .arrow {
+            font-size: 16px;
+            color: #8e44ad;
+            font-weight: bold;
+        }
+        
+        .formula-section {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .formula-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ecf0f1;
+        }
+        
+        .formula {
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 6px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        
+        .constraint {
+            font-size: 12px;
+            color: #bdc3c7;
+            margin-top: 5px;
+        }
+        
+        .attention-detail {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 6px;
+        }
+        
+        .detail-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            text-align: center;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .detail-value {
+            font-weight: bold;
+            font-size: 14px;
+            color: #8e44ad;
+            margin-bottom: 3px;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .vertical-arrow {
+            text-align: center;
+            font-size: 18px;
+            color: #8e44ad;
+            margin: 5px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .inputs-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .fusion-flow {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .attention-detail {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Attention-based Feature Fusion</h1>
+            <p class="subtitle">Adaptive Weighting of CNN and Transformer Features</p>
+        </div>
+        
+        <div class="fusion-architecture">
+            <div class="inputs-section">
+                <div class="input-feature cnn-input">
+                    <div class="feature-title">CNN Features</div>
+                    <div class="feature-dims">128-dimensional</div>
+                    <div class="feature-type">Local spatial features</div>
+                </div>
+                
+                <div class="input-feature vit-input">
+                    <div class="feature-title">ViT Features</div>
+                    <div class="feature-dims">128-dimensional</div>
+                    <div class="feature-type">Global contextual features</div>
+                </div>
+            </div>
+            
+            <div class="vertical-arrow">↓</div>
+            
+            <div class="fusion-flow">
+                <div class="fusion-step concat-step">
+                    <div class="step-title">Concatenation</div>
+                    <div class="step-details">256-dim vector</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="fusion-step attention-step">
+                    <div class="step-title">MLP Attention</div>
+                    <div class="step-details">256→128→2</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="fusion-step weights-step">
+                    <div class="step-title">Softmax</div>
+                    <div class="step-details">w₁, w₂</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="fusion-step final-step">
+                    <div class="step-title">Weighted Sum</div>
+                    <div class="step-details">128-dim output</div>
+                </div>
+            </div>
+            
+            <div class="formula-section">
+                <div class="formula-title">Fusion Formula</div>
+                <div class="formula">f_concat = [f_CNN; f_ViT] ∈ ℝ²⁵⁶</div>
+                <div class="formula">α = MLP(f_concat) ∈ ℝ²</div>
+                <div class="formula">[w₁, w₂] = Softmax(α)</div>
+                <div class="formula">f_fused = w₁ · f_CNN + w₂ · f_ViT</div>
+                <div class="constraint">Constraint: w₁ + w₂ = 1, w₁, w₂ ≥ 0</div>
+            </div>
+            
+            <div class="attention-detail">
+                <div class="detail-item">
+                    <div class="detail-value">MLP</div>
+                    <div class="detail-label">Attention Network</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">256→128→2</div>
+                    <div class="detail-label">Network Architecture</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">ReLU</div>
+                    <div class="detail-label">Activation Function</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">Softmax</div>
+                    <div class="detail-label">Weight Normalization</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">Adaptive</div>
+                    <div class="detail-label">Feature Weighting</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-value">128-dim</div>
+                    <div class="detail-label">Final Embedding</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

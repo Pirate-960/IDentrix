@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision Transformer (ViT) Backbone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #333;
+            line-height: 1.4;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #27ae60;
+            padding-bottom: 15px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #27ae60;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .architecture {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+        
+        .input-box {
+            background: linear-gradient(145deg, #e8f4f8, #d1ecf1);
+            border: 3px solid #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            min-width: 140px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .layer {
+            background: linear-gradient(145deg, #f0fff4, #e8f5e8);
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            min-width: 120px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .layer:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
+        }
+        
+        .patch-layer {
+            border-left: 6px solid #27ae60;
+            background: linear-gradient(145deg, #f0fff4, #e8f5e8);
+            min-width: 140px;
+        }
+        
+        .pos-layer {
+            border-left: 6px solid #3498db;
+            background: linear-gradient(145deg, #e8f4f8, #d1ecf1);
+        }
+        
+        .transformer-layer {
+            border-left: 6px solid #8e44ad;
+            background: linear-gradient(145deg, #f8f4ff, #f0e6ff);
+            min-width: 140px;
+        }
+        
+        .cls-layer {
+            border-left: 6px solid #e67e22;
+            background: linear-gradient(145deg, #fef9e7, #fdeaa7);
+        }
+        
+        .fc-layer {
+            border-left: 6px solid #2ecc71;
+            background: linear-gradient(145deg, #f0fff4, #e8f5e8);
+        }
+        
+        .layer-name {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .layer-dims {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        
+        .layer-details {
+            font-size: 10px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+        
+        .patch-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            margin: 8px auto;
+            max-width: 50px;
+        }
+        
+        .patch {
+            aspect-ratio: 1;
+            background: #27ae60;
+            border-radius: 2px;
+            font-size: 6px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .arrow {
+            font-size: 24px;
+            color: #27ae60;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .attention-visual {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .attention-heads {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 3px;
+        }
+        
+        .head {
+            width: 8px;
+            height: 8px;
+            background: #8e44ad;
+            border-radius: 50%;
+        }
+        
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+        }
+        
+        .spec-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            text-align: center;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .spec-value {
+            font-weight: bold;
+            font-size: 18px;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+        
+        .spec-label {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .architecture {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .layer {
+                min-width: 100px;
+            }
+            .specs {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Vision Transformer (ViT-Base)</h1>
+            <p class="subtitle">Self-Attention for Global Context Understanding</p>
+        </div>
+        
+        <div class="architecture">
+            <!-- Input -->
+            <div class="input-box">
+                <div class="layer-name">Input Image</div>
+                <div class="layer-dims">224×224×3</div>
+                <div class="layer-details">RGB Image</div>
+            </div>
+            
+            <div class="arrow">→</div>
+            
+            <!-- Patch Embedding -->
+            <div class="layer patch-layer">
+                <div class="layer-name">Patch Embedding</div>
+                <div class="layer-dims">196×768</div>
+                <div class="layer-details">16×16 patches</div>
+                <div class="patch-grid">
+                    <div class="patch">1</div>
+                    <div class="patch">2</div>
+                    <div class="patch">3</div>
+                    <div class="patch">4</div>
+                    <div class="patch">5</div>
+                    <div class="patch">6</div>
+                    <div class="patch">⋮</div>
+                    <div class="patch">196</div>
+                </div>
+            </div>
+            
+            <div class="arrow">→</div>
+            
+            <!-- Positional Encoding -->
+            <div class="layer pos-layer">
+                <div class="layer-name">Positional<br>Encoding</div>
+                <div class="layer-dims">197×768</div>
+                <div class="layer-details">+ CLS token</div>
+            </div>
+            
+            <div class="arrow">→</div>
+            
+            <!-- Transformer Layers 1-6 -->
+            <div class="layer transformer-layer">
+                <div class="layer-name">Transformer<br>Layers 1-6</div>
+                <div class="layer-dims">197×768</div>
+                <div class="layer-details">Multi-head attention</div>
+                <div class="attention-visual">
+                    <div class="attention-heads">
+                        <div class="head"></div>
+                        <div class="head"></div>
+                        <div class="head"></div>
+                        <div class="head"></div>
+                        <div class="head"></div>
+                        <div class="head"></div>
+                    </div>
+                    <div style="font-size: 8px; color: #8e44ad;">6 heads</div>
+                </div>
+            </div>
+            
+            <div class="arrow">→</div>
+            
+            <!-- Transformer Layers 7-12 -->
+            <div class="layer transformer-layer">
+                <div class="layer-name">Transformer<br>Layers 7-12</div>
+                <div class="layer-dims">197×768</div>
+                <div class="layer-details">Deep attention</div>
+                <div class="attention-visual">
+                    <div class="attention-heads">
+                        <div class="head"></div>
+                        <div class="head"></div>
+                        <div class="head"></div>
+                        <div class="head"></div>
+                        <div class="head"></div>
+                        <div class="head"></div>
+                    </div>
+                    <div style="font-size: 8px; color: #8e44ad;">12 heads</div>
+                </div>
+            </div>
+            
+            <div class="arrow">→</div>
+            
+            <!-- CLS Token -->
+            <div class="layer cls-layer">
+                <div class="layer-name">CLS Token<br>Extraction</div>
+                <div class="layer-dims">1×768</div>
+                <div class="layer-details">Global representation</div>
+            </div>
+            
+            <div class="arrow">→</div>
+            
+            <!-- FC Projection -->
+            <div class="layer fc-layer">
+                <div class="layer-name">FC Projection</div>
+                <div class="layer-dims">128-dim</div>
+                <div class="layer-details">Global features</div>
+            </div>
+        </div>
+        
+        <div class="specs">
+            <div class="spec-item">
+                <div class="spec-value">86.4M</div>
+                <div class="spec-label">Total Parameters</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">768</div>
+                <div class="spec-label">Hidden Dimension</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">12</div>
+                <div class="spec-label">Transformer Layers</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">12</div>
+                <div class="spec-label">Attention Heads</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">196</div>
+                <div class="spec-label">Image Patches</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">128</div>
+                <div class="spec-label">Output Embedding</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
