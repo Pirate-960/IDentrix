@@ -50,6 +50,7 @@ Follow this path from a clean state:
 
 # --- Standard Library Imports ---
 import os
+import random
 import logging
 import requests
 from io import BytesIO
@@ -141,20 +142,66 @@ def load_gallery_assets():
 
 # --- Helper Functions ---
 
+def get_sequential_id(original_id: str) -> int:
+    """
+    Generates a consistent, sequential ID for a given original person ID.
+
+    This function uses st.session_state to store a mapping of original IDs
+    to a simple, incrementing counter. This ensures that the same person
+    always receives the same sequential ID throughout the user's session.
+
+    For example:
+    - First unique person ('0002') gets ID 1.
+    - Second unique person ('0751') gets ID 2.
+    - A new image of person '0002' will also get ID 1.
+
+    Args:
+        original_id (str): The true ID of the person from the filename.
+
+    Returns:
+        int: The assigned sequential ID.
+    """
+    # Initialize the mapping dictionary and a counter in the session state.
+    # This will persist for the entire user session.
+    if 'sequential_id_map' not in st.session_state:
+        st.session_state.sequential_id_map = {}
+        st.session_state.id_counter = 1
+
+    # Check if we have already assigned a sequential ID to this person.
+    if original_id not in st.session_state.sequential_id_map:
+        # If not, assign the next available ID from the counter.
+        current_counter = st.session_state.id_counter
+        st.session_state.sequential_id_map[original_id] = current_counter
+        # Increment the counter for the next new person.
+        st.session_state.id_counter += 1
+    
+    # Return the consistent, sequential ID from our map.
+    return st.session_state.sequential_id_map[original_id]
+
+
 def get_person_id_from_path(path: str) -> str:
     """
-    Extracts the person ID from the image filename based on Market-1501 convention.
-    
+    Extracts the original person ID from the path and then uses the
+    get_sequential_id function to convert it to a consistent, anonymized ID.
+
     Args:
         path (str): The file path of the image.
 
     Returns:
-        str: The extracted person ID as a string, or "N/A" on failure.
+        str: The anonymized sequential ID as a string.
     """
     try:
-        # Example: `0002_c1s1_000451_01.jpg` -> "0002"
-        return os.path.basename(path).split('_')[0]
-    except (ValueError, IndexError):
+        # Extract the original, true ID from the filename.
+        filename = os.path.basename(path)
+        original_id = filename.split('_')[0]
+        
+        # Get the sequential ID for display.
+        sequential_id = get_sequential_id(original_id)
+        
+        # Return it as a string.
+        return str(sequential_id)
+    except IndexError:
+        # Handle malformed filenames gracefully.
         return "N/A"
 
 

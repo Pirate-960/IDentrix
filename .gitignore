@@ -6,9 +6,13 @@ __pycache__/
 
 # Ignore model checkpoints
 checkpoints/
+yolov8n.pt
 
 # Ignore WandB logs and files
 wandb/
+
+# Ignore Temp files
+temp/
 
 # Ignore system files
 .DS_Store
