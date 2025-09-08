@@ -387,12 +387,12 @@ def main():
         
         with query_col:
             st.subheader("2. Your Query")
-            st.image(query_image, caption="Current Query Image", use_container_width=True)
+            st.image(query_image, caption="Current Query Image", width='stretch')
             # Display Grad-CAM if the user has enabled it.
             if show_gradcam:
                 with st.spinner("Analyzing query focus..."):
                     gradcam_overlay = generate_gradcam_overlay(model, query_image)
-                    st.image(gradcam_overlay, caption="Query Grad-CAM", use_container_width=True)
+                    st.image(gradcam_overlay, caption="Query Grad-CAM", width='stretch')
 
         with results_col:
             st.subheader(f"3. Top {k_results} Matches")
@@ -420,7 +420,7 @@ def main():
                     for i, (path, score) in enumerate(strong_matches):
                         with result_cols[i]:
                             person_id = get_person_id_from_path(path) # TIER 1: Show Person ID
-                            st.image(path, use_container_width=True, caption=f"ID: {person_id} | Score: {score:.3f}")
+                            st.image(path, width='stretch', caption=f"ID: {person_id} | Score: {score:.3f}")
                             
                             # TIER 2: Interactive search chaining button.
                             if st.button("🔍 Search with this", key=f"search_{path}"):
@@ -431,7 +431,7 @@ def main():
                             if show_gradcam:
                                 with st.spinner("Analyzing match..."):
                                     match_overlay = generate_gradcam_overlay(model, Image.open(path).convert('RGB'))
-                                    st.image(match_overlay, caption="Match Grad-CAM", use_container_width=True)
+                                    st.image(match_overlay, caption="Match Grad-CAM", width='stretch')
                 
                 st.divider()
                 
@@ -442,7 +442,7 @@ def main():
                     for i, (path, score) in enumerate(weak_matches):
                          with result_cols[i]:
                             person_id = get_person_id_from_path(path)
-                            st.image(path, use_container_width=True, caption=f"ID: {person_id} | Score: {score:.3f}")
+                            st.image(path, width='stretch', caption=f"ID: {person_id} | Score: {score:.3f}")
 
 
 if __name__ == "__main__":

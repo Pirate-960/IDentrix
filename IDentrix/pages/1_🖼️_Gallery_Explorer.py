@@ -122,7 +122,7 @@ cols = st.columns(5)
 for i, path in enumerate(page_paths):
     with cols[i % 5]:
         person_id = get_person_id_from_path(path)
-        st.image(path, caption=f"ID: {person_id}", use_container_width=True)
+        st.image(path, caption=f"ID: {person_id}", width='stretch')
         if st.button("Use as Query", key=f"query_{path}"):
             # Set the selected image in session state
             st.session_state.query_image = Image.open(path).convert('RGB')
